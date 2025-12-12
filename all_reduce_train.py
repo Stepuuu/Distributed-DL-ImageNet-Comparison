@@ -221,14 +221,17 @@ def main():
             "final_train_accuracy": final_accuracy,
         }
 
-        with open("./results_all_reduce.json", "w") as f:
+        # 创建results目录
+        os.makedirs("./results", exist_ok=True)
+
+        with open("./results/results_all_reduce.json", "w") as f:
             json.dump(metrics, f, indent=2)
 
         print("\n" + "=" * 80)
         print("Training Completed!")
         print(f"Average Throughput: {avg_train_throughput:.2f} img/s")
         print(f"Final Training Accuracy: {final_accuracy:.2f}%")
-        print("Results saved to: results_all_reduce.json")
+        print("Results saved to: results/results_all_reduce.json")
         print("=" * 80)
 
 

@@ -382,7 +382,10 @@ def main():
             "best_val_accuracy": best_val_accuracy,
         }
 
-        with open("./results_ps.json", "w") as f:
+        # 创建results目录
+        os.makedirs("./results", exist_ok=True)
+
+        with open("./results/results_ps.json", "w") as f:
             json.dump(metrics, f, indent=2)
 
         print("\n" + "=" * 80)
@@ -392,7 +395,7 @@ def main():
         print(
             f"Avg Communication Time - Pull: {avg_comm_pull * 1000:.2f}ms, Push: {avg_comm_push * 1000:.2f}ms"
         )
-        print("Results saved to: results_ps.json")
+        print("Results saved to: results/results_ps.json")
         print("=" * 80)
 
 

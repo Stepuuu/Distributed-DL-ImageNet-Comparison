@@ -249,14 +249,17 @@ def train(batch_size, num_epochs, path="./"):
             "best_val_accuracy": best_accuracy,
         }
 
-        with open("./results_baseline_ddp.json", "w") as f:
+        # 创建results目录
+        os.makedirs("./results", exist_ok=True)
+
+        with open("./results/results_baseline_ddp.json", "w") as f:
             json.dump(metrics, f, indent=2)
 
         print("\n" + "=" * 80)
         print("Training Completed!")
         print(f"Average Throughput: {avg_train_throughput:.2f} img/s")
         print(f"Best Validation Accuracy: {best_accuracy:.2f}%")
-        print("Results saved to: results_baseline_ddp.json")
+        print("Results saved to: results/results_baseline_ddp.json")
         print("=" * 80)
 
 

@@ -20,9 +20,9 @@ class PerformanceAnalyzer:
     def __init__(self):
         self.results = {}
         self.methods = {
-            "results_baseline_ddp.json": "Baseline DDP",
-            "results_all_reduce.json": "Manual All-Reduce",
-            "results_ps.json": "Parameter Server",
+            "./results/results_baseline_ddp.json": "Baseline DDP",
+            "./results/results_all_reduce.json": "Manual All-Reduce",
+            "./results/results_ps.json": "Parameter Server",
         }
         self.colors = {
             "Baseline DDP": "#2E86AB",
@@ -126,7 +126,7 @@ class PerformanceAnalyzer:
         print("\n")
         return table_data
 
-    def plot_throughput_comparison(self, table_data, output_dir="./plots"):
+    def plot_throughput_comparison(self, table_data, output_dir="./results/plots"):
         """绘制吞吐量对比图"""
         os.makedirs(output_dir, exist_ok=True)
 
@@ -164,7 +164,7 @@ class PerformanceAnalyzer:
         print(f"✓ 吞吐量对比图已保存: {output_path}")
         plt.close()
 
-    def plot_training_time_comparison(self, table_data, output_dir="./plots"):
+    def plot_training_time_comparison(self, table_data, output_dir="./results/plots"):
         """绘制训练时间对比图"""
         os.makedirs(output_dir, exist_ok=True)
 
@@ -240,8 +240,8 @@ class PerformanceAnalyzer:
         print(f"✓ Loss曲线图已保存: {output_path}")
         plt.close()
 
-    def plot_accuracy_curves(self, output_dir="./plots"):
-        """绘制准确率曲线对比"""
+    def plot_accuracy_curves(self, output_dir="./results/plots"):
+        """绘制准确率曲线对比图"""
         os.makedirs(output_dir, exist_ok=True)
 
         plt.figure(figsize=(12, 6))
@@ -281,8 +281,8 @@ class PerformanceAnalyzer:
         print(f"✓ 准确率曲线图已保存: {output_path}")
         plt.close()
 
-    def plot_communication_overhead(self, output_dir="./plots"):
-        """绘制通信开销对比 (仅PS和All-Reduce)"""
+    def plot_communication_overhead(self, output_dir="./results/plots"):
+        """绘制通信开销对比图 (仅PS和All-Reduce)"""
         os.makedirs(output_dir, exist_ok=True)
 
         comm_data = {}
@@ -374,7 +374,7 @@ class PerformanceAnalyzer:
         print(f"✓ 通信开销对比图已保存: {output_path}")
         plt.close()
 
-    def generate_report(self, output_file="performance_report.txt"):
+    def generate_report(self, output_file="./results/performance_report.txt"):
         """生成文本报告"""
         with open(output_file, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")

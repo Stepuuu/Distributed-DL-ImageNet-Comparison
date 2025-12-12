@@ -16,23 +16,23 @@ WORKERS=16        # DataLoader workers
 DATA_DIR="./"     # 数据集路径
 BACKEND="nccl"    # 通信后端
 
-# 清理旧结果
-echo "[1/4] 清理旧实验结果..."
-rm -f results_*.json performance_report.txt
-rm -rf plots/
-echo "✓ 清理完成"
+# 创建结果目录
+echo "[1/5] 准备结果目录..."
+mkdir -p results/plots
+rm -f results/*.json results/*.txt
+echo "✓ 结果目录准备完成"
 echo ""
 
 # 实验A: Baseline DDP
-echo "[2/4] 运行实验A: Baseline DDP (PyTorch原生)"
+echo "[2/5] 运行实验A: Baseline DDP (PyTorch原生)"
 echo "=========================================="
 torchrun --nproc_per_node=$NPROC baseline_multi_card.py
 echo ""
-echo "✓ 实验A完成 - 结果保存到 results_baseline_ddp.json"
+echo "✓ 实验A完成 - 结果保存到 results/results_baseline_ddp.json"
 echo ""
 
 # 实验B: Manual All-Reduce
-echo "[3/4] 运行实验B: Manual All-Reduce"
+echo "[3/5] 运行实验B: Manual All-Reduce"
 echo "=========================================="
 torchrun --nproc_per_node=$NPROC all_reduce_train.py \
     --epochs $EPOCHS \
@@ -41,11 +41,11 @@ torchrun --nproc_per_node=$NPROC all_reduce_train.py \
     --data-dir $DATA_DIR \
     --backend $BACKEND
 echo ""
-echo "✓ 实验B完成 - 结果保存到 results_all_reduce.json"
+echo "✓ 实验B完成 - 结果保存到 results/results_all_reduce.json"
 echo ""
 
 # 实验C: Parameter Server
-echo "[4/4] 运行实验C: Parameter Server"
+echo "[4/5] 运行实验C: Parameter Server"
 echo "=========================================="
 torchrun --nproc_per_node=$NPROC ps_train.py \
     --epochs $EPOCHS \
@@ -54,12 +54,12 @@ torchrun --nproc_per_node=$NPROC ps_train.py \
     --data-dir $DATA_DIR \
     --backend $BACKEND
 echo ""
-echo "✓ 实验C完成 - 结果保存到 results_ps.json"
+echo "✓ 实验C完成 - 结果保存到 results/results_ps.json"
 echo ""
 
 # 分析结果
 echo "=========================================="
-echo "生成性能分析报告和可视化图表..."
+echo "[5/5] 生成性能分析报告和可视化图表..."
 echo "=========================================="
 python analyze_results.py
 echo ""
@@ -70,8 +70,8 @@ echo "✓ 所有实验完成！"
 echo "=========================================="
 echo ""
 echo "生成的文件:"
-echo "  结果文件:"
-ls -lh results_*.json 2>/dev/null | awk '{print "    - " $9 " (" $5 ")"}'
+echo "  结果文件 (results/):"
+ls -lh results/*.json 2>/dev/null | awk '{print "    - " $9 " (" $5 ")"}'
 echo ""
 echo "  报告文件:"
 echo "    - performance_report.txt"
