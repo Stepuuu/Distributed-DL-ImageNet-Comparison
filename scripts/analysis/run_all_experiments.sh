@@ -26,7 +26,7 @@ echo ""
 # 实验A: Baseline DDP
 echo "[2/5] 运行实验A: Baseline DDP (PyTorch原生)"
 echo "=========================================="
-torchrun --nproc_per_node=$NPROC baseline_multi_card.py
+torchrun --nproc_per_node=$NPROC scripts/training/baseline_multi_card.py
 echo ""
 echo "✓ 实验A完成 - 结果保存到 results/results_baseline_ddp.json"
 echo ""
@@ -34,7 +34,7 @@ echo ""
 # 实验B: Manual All-Reduce
 echo "[3/5] 运行实验B: Manual All-Reduce"
 echo "=========================================="
-torchrun --nproc_per_node=$NPROC all_reduce_train.py \
+torchrun --nproc_per_node=$NPROC scripts/training/all_reduce_train.py \
     --epochs $EPOCHS \
     --batch-size $BATCH_SIZE \
     --workers $WORKERS \
@@ -47,7 +47,7 @@ echo ""
 # 实验C: Parameter Server
 echo "[4/5] 运行实验C: Parameter Server"
 echo "=========================================="
-torchrun --nproc_per_node=$NPROC ps_train.py \
+torchrun --nproc_per_node=$NPROC scripts/training/ps_train.py \
     --epochs $EPOCHS \
     --batch-size $BATCH_SIZE \
     --workers $WORKERS \
@@ -61,7 +61,7 @@ echo ""
 echo "=========================================="
 echo "[5/5] 生成性能分析报告和可视化图表..."
 echo "=========================================="
-python analyze_results.py
+python scripts/analysis/analyze_results.py
 echo ""
 
 # 显示生成的文件
@@ -73,12 +73,12 @@ echo "生成的文件:"
 echo "  结果文件 (results/):"
 ls -lh results/*.json 2>/dev/null | awk '{print "    - " $9 " (" $5 ")"}'
 echo ""
-echo "  报告文件:"
-echo "    - performance_report.txt"
+echo "  报告文件 (results/):"
+echo "    - results/performance_report.txt"
 echo ""
-echo "  图表文件 (./plots/):"
-ls -1 plots/*.png 2>/dev/null | awk '{print "    - " $1}'
+echo "  图表文件 (results/plots/):"
+ls -1 results/plots/*.png 2>/dev/null | awk '{print "    - " $1}'
 echo ""
 echo "=========================================="
-echo "请查看 EXPERIMENT_GUIDE.md 了解如何使用这些结果撰写报告"
+echo "请查看 docs/EXPERIMENT_GUIDE.md 了解如何使用这些结果撰写报告"
 echo "=========================================="

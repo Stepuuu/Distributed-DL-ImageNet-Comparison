@@ -1,0 +1,67 @@
+# 数据集文件（太大，不上传）
+imagenet_raw/
+imagenet-object-localization-challenge.zip
+val_organized/
+
+# 数据集软链接（指向上面的大文件）
+train
+val
+
+# 临时训练结果（可选：如果想保留结果可以注释掉这行）
+results/
+*.log
+setup.log
+
+# 隐私信息（API keys, credentials）
+kaggle.json
+*.json.secret
+credentials/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# 环境
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志和输出
+nohup.out
+*.log
+experiment_log_*.txt
+organize_val_fast.log
+setup.log
+unzip_resume.log
+
+# 临时文件
+*.tmp
+*.bak
+/tmp/

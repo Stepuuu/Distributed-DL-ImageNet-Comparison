@@ -69,10 +69,8 @@ def main():
     torch.cuda.set_device(local_rank)
 
     num_classes = 1000
+    # 从头训练，不使用预训练权重
     model = models.resnet50(weights=None)
-    local_weights_path = "./resnet50-0676ba61.pth"
-    state_dict = torch.load(local_weights_path)
-    model.load_state_dict(state_dict)
     model.fc = nn.Linear(model.fc.in_features, num_classes)
     model = model.cuda(local_rank)
 
@@ -103,6 +101,26 @@ def main():
         train_dataset,
         batch_size=args.batch_size,
         sampler=train_sampler,
+        num_workers=args.workers,
+        pin_memory=True,
+    )
+
+    # 添加验证集
+    val_path = os.path.join(args.data_dir, "val")
+    val_transform = transforms.Compose(
+        [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            normalizer,
+        ]
+    )
+    val_dataset = datasets.ImageFolder(root=val_path, transform=val_transform)
+    val_sampler = torch.utils.data.SequentialSampler(val_dataset)
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        sampler=val_sampler,
         num_workers=args.workers,
         pin_memory=True,
     )
@@ -190,6 +208,32 @@ def main():
                 f"[Epoch {epoch + 1}] Avg Batch Time: {avg_batch_time * 1000:.2f}ms, Avg Comm Time: {avg_comm_time * 1000:.2f}ms"
             )
 
+            # 验证阶段
+            model.eval()
+            val_loss = 0.0
+            val_correct = 0
+            val_total = 0
+
+            with torch.no_grad():
+                val_loop = tqdm(
+                    val_loader, desc="Validation", leave=False, disable=(rank != 0)
+                )
+                for images, labels in val_loop:
+                    images, labels = images.to(device), labels.to(device)
+                    outputs = model(images)
+                    loss = criterion(outputs, labels)
+                    val_loss += loss.item() * images.size(0)
+                    _, predicted = outputs.max(1)
+                    val_total += labels.size(0)
+                    val_correct += predicted.eq(labels).sum().item()
+
+            val_accuracy = 100.0 * val_correct / val_total if val_total > 0 else 0
+            val_loss = val_loss / val_total if val_total > 0 else 0
+
+            print(
+                f"[Epoch {epoch + 1}] Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.2f}%"
+            )
+
             metrics["epochs"].append(
                 {
                     "epoch": epoch + 1,
@@ -200,6 +244,8 @@ def main():
                     "avg_batch_time": avg_batch_time,
                     "avg_comm_time": avg_comm_time,
                     "all_losses": all_losses,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_accuracy,
                 }
             )
 
@@ -215,10 +261,15 @@ def main():
         )
         final_accuracy = metrics["epochs"][-1]["train_accuracy"]
 
+        best_val_accuracy = max(e["val_accuracy"] for e in metrics["epochs"])
+        final_val_accuracy = metrics["epochs"][-1]["val_accuracy"]
+
         metrics["summary"] = {
             "avg_train_throughput": avg_train_throughput,
             "avg_train_time_per_epoch": avg_train_time,
             "final_train_accuracy": final_accuracy,
+            "best_val_accuracy": best_val_accuracy,
+            "final_val_accuracy": final_val_accuracy,
         }
 
         # 创建results目录
@@ -231,6 +282,7 @@ def main():
         print("Training Completed!")
         print(f"Average Throughput: {avg_train_throughput:.2f} img/s")
         print(f"Final Training Accuracy: {final_accuracy:.2f}%")
+        print(f"Best Validation Accuracy: {best_val_accuracy:.2f}%")
         print("Results saved to: results/results_all_reduce.json")
         print("=" * 80)
 

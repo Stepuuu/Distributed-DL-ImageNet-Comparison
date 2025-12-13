@@ -136,11 +136,8 @@ def train(batch_size, num_epochs, path="./"):
     train_loader, val_loader = load_data(batch_size, rank, world_size, path)
 
     num_classes = 1000
+    # 从头训练，不使用预训练权重
     model = models.resnet50(weights=None)
-    local_weights_path = "./resnet50-0676ba61.pth"
-    state_dict = torch.load(local_weights_path, map_location=device)
-    model.load_state_dict(state_dict)
-
     model.fc = nn.Linear(model.fc.in_features, num_classes)
     model = model.to(device)
     model = DDP(model, device_ids=[rank])
