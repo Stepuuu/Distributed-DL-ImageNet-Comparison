@@ -3,15 +3,21 @@
 
 set -e  # 遇到错误立即退出
 
+# 确保在项目根目录运行
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$PROJECT_ROOT"
+
 echo "=========================================="
 echo "分布式训练性能对比实验"
 echo "=========================================="
+echo "工作目录: $PROJECT_ROOT"
 echo ""
 
 # 配置参数
 NPROC=4           # GPU数量
 EPOCHS=3          # 训练epoch数
-BATCH_SIZE=64     # Batch size
+BATCH_SIZE=256    # Batch size (每GPU 64 samples)
 WORKERS=16        # DataLoader workers
 DATA_DIR="./"     # 数据集路径
 BACKEND="nccl"    # 通信后端

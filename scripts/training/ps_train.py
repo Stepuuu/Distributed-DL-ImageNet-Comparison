@@ -201,11 +201,15 @@ def main():
             # Training epoch完成后统计
             epoch_time = time.time() - epoch_start_time
             epoch_accuracy = 100.0 * correct / total if total > 0 else 0
-            avg_loss = (
-                sum(all_loss[-len(train_loader) :]) / len(train_loader)
-                if all_loss
-                else 0
-            )
+            # 只有rank 1才有all_loss记录
+            if rank == 1:
+                avg_loss = (
+                    sum(all_loss[-len(train_loader) :]) / len(train_loader)
+                    if all_loss
+                    else 0
+                )
+            else:
+                avg_loss = 0
             throughput = total / epoch_time if epoch_time > 0 else 0
             avg_batch_time = sum(batch_times) / len(batch_times) if batch_times else 0
             avg_comm_download = (

@@ -2,6 +2,8 @@
 
 A comprehensive comparison of distributed training methods for deep learning on ImageNet ResNet50, featuring manual implementations of Parameter Server, All-Reduce synchronization, and comparison with PyTorch native DDP (DistributedDataParallel).
 
+> **Academic Project**: This repository is organized for educational purposes as part of AI Engineering coursework. Training implementations are adapted from course materials and reference implementations, with modifications for comparative analysis and performance benchmarking.
+
 ## 📁 Project Structure
 
 ```
@@ -232,9 +234,17 @@ This project is for educational purposes as part of AI Engineering coursework.
 
 ## 🙏 Acknowledgments
 
-- PyTorch team for distributed training primitives
+### Code Attribution
+- **Training implementations**: Some baseline training scripts (Parameter Server, All-Reduce variants) are adapted from course materials and reference implementations
+- **Data preparation scripts**: Based on community scripts and ImageNet documentation
+- **Project organization and enhancements**: Structured and modified for this comparison study
+
+### Resources
+- PyTorch team for distributed training primitives and documentation
 - ImageNet dataset from Stanford Vision Lab
-- Course instructors and TAs
+- Course instructors and TAs for guidance and reference implementations
+
+**Note**: This repository is organized for academic learning purposes. Core training implementations follow standard distributed training patterns with modifications for comparative analysis.
 
 ---
 

@@ -204,7 +204,7 @@ class PerformanceAnalyzer:
         print(f"✓ 训练时间对比图已保存: {output_path}")
         plt.close()
 
-    def plot_loss_curves(self, output_dir="./plots"):
+    def plot_loss_curves(self, output_dir="./results/plots"):
         """绘制Loss曲线对比"""
         os.makedirs(output_dir, exist_ok=True)
 

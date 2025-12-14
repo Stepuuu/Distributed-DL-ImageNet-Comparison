@@ -60,7 +60,14 @@ def load_data(batch_size, rank, world_size, path="./"):
 
 
 def run_epoch(
-    model, dataloader, criterion, optimizer=None, device="cpu", phase="train", rank=0
+    model,
+    dataloader,
+    criterion,
+    optimizer=None,
+    device="cpu",
+    phase="train",
+    rank=0,
+    world_size=1,
 ):
     if phase == "train":
         model.train()
@@ -103,7 +110,10 @@ def run_epoch(
         all_train_loss.append(loss.item())
 
         if rank == 0:
-            throughput = images.size(0) / batch_time if batch_time > 0 else 0
+            # 修正：单个batch的吞吐量 = (batch_size * world_size) / batch_time
+            throughput = (
+                (images.size(0) * world_size) / batch_time if batch_time > 0 else 0
+            )
             loop.set_postfix(
                 loss=f"{loss.item():.4f}",
                 acc=f"{100.0 * correct / total:.2f}%",
@@ -114,7 +124,8 @@ def run_epoch(
     epoch_loss = running_loss / total
     epoch_accuracy = 100.0 * correct / total
     avg_batch_time = sum(batch_times) / len(batch_times) if batch_times else 0
-    throughput = total / epoch_time if epoch_time > 0 else 0
+    # 修正：整个epoch的吞吐量 = (每GPU样本数 * GPU数量) / epoch_time
+    throughput = (total * world_size) / epoch_time if epoch_time > 0 else 0
 
     return (
         epoch_loss,
@@ -182,7 +193,14 @@ def train(batch_size, num_epochs, path="./"):
             train_throughput,
             avg_batch_time,
         ) = run_epoch(
-            model, train_loader, criterion, optimizer, device, phase="train", rank=rank
+            model,
+            train_loader,
+            criterion,
+            optimizer,
+            device,
+            phase="train",
+            rank=rank,
+            world_size=world_size,
         )
 
         if rank == 0:
@@ -196,7 +214,13 @@ def train(batch_size, num_epochs, path="./"):
             print(f"[Epoch {epoch + 1}] Avg Batch Time: {avg_batch_time * 1000:.2f}ms")
 
         val_loss, val_accuracy, _, val_time, val_throughput, _ = run_epoch(
-            model, val_loader, criterion, device=device, phase="validate", rank=rank
+            model,
+            val_loader,
+            criterion,
+            device=device,
+            phase="validate",
+            rank=rank,
+            world_size=world_size,
         )
 
         if rank == 0:
@@ -261,4 +285,4 @@ def train(batch_size, num_epochs, path="./"):
 
 
 if __name__ == "__main__":
-    train(batch_size=64, num_epochs=3)
+    train(batch_size=256, num_epochs=3)
